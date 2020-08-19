@@ -1,8 +1,7 @@
 package com.kael.websocket.config;
 
-import com.kael.websocket.interceptor.ChatChin;
+import com.kael.websocket.handler.CustomHandshakeHandler;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -20,17 +19,16 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic");
+        config.enableSimpleBroker("/topic","/queue");
         config.setApplicationDestinationPrefixes("/app");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/gs-guide-websocket").setAllowedOrigins("*").withSockJS();
+        registry.addEndpoint("/gs-guide-websocket")
+                .setHandshakeHandler(new CustomHandshakeHandler()) // 换成自定义的握手处理器
+                .setAllowedOrigins("*") // 允许跨域
+                .withSockJS();
     }
 
-    @Override
-    public void configureClientOutboundChannel(ChannelRegistration registration) {
-        registration.interceptors(new ChatChin());
-    }
 }
